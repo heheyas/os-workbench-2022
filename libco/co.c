@@ -95,7 +95,7 @@ void co_resume()
   if (current->status == CO_NEW)
   {
     current->status = CO_RUNNING;
-    stack_switch_call(current->stack, current->func, (uintptr_t*)current->arg);
+    stack_switch_call(current->stack, current->func, current->arg);
   }
   else if (current->status == CO_WAITING)
   {
