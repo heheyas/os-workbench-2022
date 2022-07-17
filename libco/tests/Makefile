@@ -1,6 +1,6 @@
 .PHONY: test libco
 
-all: libco-test-64 libco-test-32
+all: libco-test-64 
 
 test: libco all
 	@echo "==== TEST 64 bit ===="
