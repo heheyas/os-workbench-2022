@@ -14,14 +14,19 @@ void entry(void *arg)
         global_cnt++;
         co_yield();
     }
-    debug("%s returned\n", (const char *)arg); // print returned when i == 10
+    debug("%s is going to return right away\n", (const char *)arg); // print returned when i == 10
+}
+
+void do_nothing(void *ptr)
+{
+    return;
 }
 
 int main(int argc, char *argv[])
 {
     struct co *co1 = co_start("co1", entry, "a");
-    struct co *co2 = co_start("co2", entry, "b");
+//    struct co *co2 = co_start("co2", entry, "b");
     co_wait(co1); // never returns
-    co_wait(co2);
+//    co_wait(co2);
     co_yield();
 }

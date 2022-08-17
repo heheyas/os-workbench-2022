@@ -25,9 +25,23 @@ static void fake_func()
   return;
 }
 
-static void inline stack_switch_call(void *sp, void *entry, uintptr_t arg)
+/** static inline void stack_switch_call(void *sp, void *entry, uintptr_t arg) */
+/** { */
+/**     asm volatile ( */
+/** #if __x86_64__ */
+/**         "movq %0, %%rsp; movq %2, %%rdi; call *%1" : : "b"((uintptr_t)sp), "d"(entry), "a"(arg) */
+/** #else */
+/**         "movl %0, %%esp; movl %2, 4(%0); call *%1" : : "b"((uintptr_t)sp - 8), "d"(entry), "a"(arg) */
+/** #endif */
+/**             ); */
+/**     return; */
+/** } */
+
+static inline void stack_switch_call(void *sp, void *entry, uintptr_t arg)
 {
   debug("%d time(s) call stack switch\n", num_call_stack_switch++);
+  if (num_call_stack_switch >= 4)
+    return;
   register long rsp asm("rsp");
   volatile long saved_rsp = rsp;
   fake_func();
@@ -105,8 +119,8 @@ static void insert_coroutine(co *new_co)
 
 static coNode *find_then_remove(co *del_co)
 {
-  debug("Here in the find_then_remove_func\n");
-  print_coroutine_list();
+  // debug("Here in the find_then_remove_func\n");
+  // print_coroutine_list();
   if (del_co != current->coroutine)
   {
     if (del_co == NULL)
@@ -120,7 +134,7 @@ static coNode *find_then_remove(co *del_co)
     cp->next = cp;
     cp->prev = cp;
     debug("after removal\n");
-    print_coroutine_list();
+    // print_coroutine_list();
     return cp;
   }
   else

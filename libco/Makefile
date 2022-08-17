@@ -1,7 +1,7 @@
 all: test
 CC=gcc
 CPPFLAGS=-Wall -ggdb -DLOCAL_MACHINE -pedantic -Wextra
-# SANFLAGS=-fsanitize=address -static-libasan -g
+ SANFLAGS=-fsanitize=address -static-libasan -g
 
 .PHONY: clean
 
