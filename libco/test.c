@@ -25,8 +25,8 @@ void do_nothing(void *ptr)
 int main(int argc, char *argv[])
 {
     struct co *co1 = co_start("co1", entry, "a");
-//    struct co *co2 = co_start("co2", entry, "b");
+    struct co *co2 = co_start("co2", entry, "b");
     co_wait(co1); // never returns
-//    co_wait(co2);
+    co_wait(co2);
     co_yield();
 }

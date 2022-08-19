@@ -25,50 +25,50 @@ static void fake_func()
   return;
 }
 
-/** static inline void stack_switch_call(void *sp, void *entry, uintptr_t arg) */
-/** { */
-/**     asm volatile ( */
-/** #if __x86_64__ */
-/**         "movq %0, %%rsp; movq %2, %%rdi; call *%1" : : "b"((uintptr_t)sp), "d"(entry), "a"(arg) */
-/** #else */
-/**         "movl %0, %%esp; movl %2, 4(%0); call *%1" : : "b"((uintptr_t)sp - 8), "d"(entry), "a"(arg) */
-/** #endif */
-/**             ); */
-/**     return; */
-/** } */
-
-static inline void stack_switch_call(void *sp, void *entry, uintptr_t arg)
-{
-  debug("%d time(s) call stack switch\n", num_call_stack_switch++);
-  if (num_call_stack_switch >= 4)
-    return;
-  register long rsp asm("rsp");
-  volatile long saved_rsp = rsp;
-  fake_func();
-  asm volatile(
+static inline void stack_switch_call(void *sp, void *entry, uintptr_t arg) {
+  asm volatile (
 #if __x86_64__
-      "movq %0, %%rsp; movq %3, 16(%%rsp); movq %2, %%rdi; call *%1"
-      :
-      : "b"((uintptr_t)sp - 32), "d"((uintptr_t)entry), "a"((uintptr_t)arg), "r"(saved_rsp)
-      : "memory", "rcx"
+    "movq %0, %%rsp; movq %2, %%rdi; jmp *%1"
+      : : "b"((uintptr_t)sp), "d"(entry), "a"(arg) : "memory"
 #else
-      "movl %0, %%esp; movl %2, 4(%0); jmp *%1"
-      :
-      : "b"((uintptr_t)sp - 8), "d"(entry), "a"(arg)
-      : "memory"
+    "movl %0, %%esp; movl %2, 4(%0); jmp *%1"
+      : : "b"((uintptr_t)sp - 8), "d"(entry), "a"(arg) : "memory"
 #endif
   );
-  asm volatile(
-#if __x86_64__
-      "movq 32(%%rsp), %%rcx; movq 16(%%rsp), %0; movq %0, %%rsp"
-#else
-      "movl %0, %%esp; movl %1, %%ebp"
-#endif
-      :
-      : "r"(saved_rsp)
-      : "rcx");
-  return;
 }
+
+/** static inline void stack_switch_call(void *sp, void *entry, uintptr_t arg) */
+/** { */
+/**   debug("%d time(s) call stack switch\n", num_call_stack_switch++); */
+/**   [> if (num_call_stack_switch >= 4) <] */
+/**   [>   return; <] */
+/**   register long rsp asm("rsp"); */
+/**   volatile long saved_rsp = rsp; */
+/**   fake_func(); */
+/**   asm volatile( */
+/** #if __x86_64__ */
+/**       "movq %0, %%rsp; movq %3, 16(%%rsp); movq %2, %%rdi; call *%1" */
+/**       : */
+/**       : "b"((uintptr_t)sp - 32), "d"((uintptr_t)entry), "a"((uintptr_t)arg), "r"(saved_rsp) */
+/**       : "memory", "rcx" */
+/** #else */
+/**       "movl %0, %%esp; movl %2, 4(%0); jmp *%1" */
+/**       : */
+/**       : "b"((uintptr_t)sp - 8), "d"(entry), "a"(arg) */
+/**       : "memory" */
+/** #endif */
+/**   ); */
+/**   asm volatile( */
+/** #if __x86_64__ */
+/**       "movq 32(%%rsp), %%rcx; movq 16(%%rsp), %0; movq %0, %%rsp" */
+/** #else */
+/**       "movl %0, %%esp; movl %1, %%ebp" */
+/** #endif */
+/**       : */
+/**       : "r"(saved_rsp) */
+/**       : "rcx"); */
+/**   return; */
+/** } */
 
 enum co_status
 {
